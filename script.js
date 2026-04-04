@@ -1,245 +1,256 @@
-/* ============================================
-   Notes Manager - JavaScript Functionality
-   Handles all note CRUD operations and localStorage
-   ============================================ */
+// ===========================
+// Blog Application - Main Script
+// ===========================
 
-// Initialize notes from localStorage
-let notes = JSON.parse(localStorage.getItem('notes')) || [];
-let editingNoteId = null;
+const STORAGE_KEY = 'blogPosts';
 
-// DOM Elements
-const addNoteBtn = document.getElementById('addNoteBtn');
-const noteModal = document.getElementById('noteModal');
-const noteForm = document.getElementById('noteForm');
-const noteTitle = document.getElementById('noteTitle');
-const noteContent = document.getElementById('noteContent');
-const notesContainer = document.getElementById('notesContainer');
-const searchInput = document.getElementById('searchInput');
-const emptyState = document.getElementById('emptyState');
-const closeBtn = document.querySelector('.close');
-const modalTitle = document.getElementById('modalTitle');
-const cancelBtn = document.querySelector('.btn-cancel');
+// Initialize the app
+document.addEventListener('DOMContentLoaded', () => {
+    initializeApp();
+});
 
+// Initialize application
+function initializeApp() {
+    renderPosts();
+    setupEventListeners();
+    loadPostsFromStorage();
+}
+
+// ===========================
 // Event Listeners
-addNoteBtn.addEventListener('click', openAddNoteModal);
-closeBtn.addEventListener('click', closeModal);
-cancelBtn.addEventListener('click', closeModal);
-window.addEventListener('click', closeModalOnOutsideClick);
-noteForm.addEventListener('submit', handleFormSubmit);
-searchInput.addEventListener('input', handleSearch);
+// ===========================
 
-// ============================================
-// Core Functions
-// ============================================
+function setupEventListeners() {
+    // Navigation links
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const section = link.dataset.section;
+            showSection(section);
+        });
+    });
 
-/**
- * Open modal for adding a new note
- */
-function openAddNoteModal() {
-    editingNoteId = null;
-    noteForm.reset();
-    modalTitle.textContent = 'Add New Note';
-    noteModal.style.display = 'block';
-    noteTitle.focus();
+    // Post form submission
+    const postForm = document.getElementById('post-form');
+    postForm.addEventListener('submit', handlePostSubmit);
+
+    // Image URL preview
+    const imageInput = document.getElementById('post-image');
+    imageInput.addEventListener('change', previewImage);
 }
 
-/**
- * Open modal for editing an existing note
- * @param {string} id - The unique ID of the note to edit
- */
-function openEditNoteModal(id) {
-    editingNoteId = id;
-    const note = notes.find(n => n.id === id);
-    
-    if (note) {
-        noteTitle.value = note.title;
-        noteContent.value = note.content;
-        modalTitle.textContent = 'Edit Note';
-        noteModal.style.display = 'block';
-        noteTitle.focus();
-    }
-}
+// ===========================
+// Navigation & Sections
+// ===========================
 
-/**
- * Close the modal
- */
-function closeModal() {
-    noteModal.style.display = 'none';
-    noteForm.reset();
-    editingNoteId = null;
-}
+function showSection(sectionId) {
+    // Hide all sections
+    document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active');
+    });
 
-/**
- * Close modal when clicking outside of it
- */
-function closeModalOnOutsideClick(event) {
-    if (event.target === noteModal) {
-        closeModal();
-    }
-}
-
-/**
- * Handle form submission (add or edit note)
- */
-function handleFormSubmit(event) {
-    event.preventDefault();
-
-    const title = noteTitle.value.trim();
-    const content = noteContent.value.trim();
-
-    if (!title || !content) {
-        alert('Please fill in both title and content!');
-        return;
+    // Show target section
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+        targetSection.classList.add('active');
     }
 
-    if (editingNoteId) {
-        // Edit existing note
-        const note = notes.find(n => n.id === editingNoteId);
-        if (note) {
-            note.title = title;
-            note.content = content;
-            note.edited = new Date().toISOString();
+    // Update active nav link
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+        if (link.dataset.section === sectionId) {
+            link.classList.add('active');
         }
-    } else {
-        // Add new note
-        const newNote = {
-            id: generateId(),
-            title: title,
-            content: content,
-            created: new Date().toISOString(),
-            edited: null
-        };
-        notes.push(newNote);
-    }
+    });
 
-    // Save and refresh
-    saveNotes();
-    renderNotes();
-    closeModal();
+    // Scroll to top
+    window.scrollTo(0, 0);
 }
 
-/**
- * Delete a note with confirmation
- */
-function deleteNote(id) {
-    if (confirm('Are you sure you want to delete this note?')) {
-        notes = notes.filter(note => note.id !== id);
-        saveNotes();
-        renderNotes();
-    }
+// ===========================
+// Blog Posts Management
+// ===========================
+
+// Get all posts from localStorage
+function getPostsFromStorage() {
+    const posts = localStorage.getItem(STORAGE_KEY);
+    return posts ? JSON.parse(posts) : [];
 }
 
-/**
- * Save notes to localStorage
- */
-function saveNotes() {
-    localStorage.setItem('notes', JSON.stringify(notes));
+// Save posts to localStorage
+function savePostsToStorage(posts) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
 }
 
-// ============================================
-// Search & Filter
-// ============================================
-
-/**
- * Handle search input
- */
-function handleSearch(event) {
-    const searchTerm = event.target.value.toLowerCase().trim();
-    renderNotes(searchTerm);
+// Load posts from storage and render them
+function loadPostsFromStorage() {
+    renderPosts();
 }
 
-/**
- * Filter notes based on search term
- */
-function filterNotes(searchTerm) {
-    if (!searchTerm) {
-        return notes;
-    }
+// Render all blog posts
+function renderPosts() {
+    const posts = getPostsFromStorage();
+    const postsContainer = document.getElementById('posts-container');
+    const emptyState = document.getElementById('empty-state');
 
-    return notes.filter(note => 
-        note.title.toLowerCase().includes(searchTerm) ||
-        note.content.toLowerCase().includes(searchTerm)
-    );
-}
+    // Clear container
+    postsContainer.innerHTML = '';
 
-// ============================================
-// Rendering
-// ============================================
-
-/**
- * Render all or filtered notes
- */
-function renderNotes(searchTerm = '') {
-    const filteredNotes = filterNotes(searchTerm);
-    notesContainer.innerHTML = '';
-
-    // Show empty state if no notes
-    if (filteredNotes.length === 0) {
-        emptyState.classList.remove('hidden');
+    if (posts.length === 0) {
+        emptyState.style.display = 'block';
         return;
     }
 
-    emptyState.classList.add('hidden');
+    emptyState.style.display = 'none';
 
-    // Create note cards
-    filteredNotes.forEach(note => {
-        const noteCard = createNoteCard(note);
-        notesContainer.appendChild(noteCard);
+    // Render posts in reverse order (newest first)
+    posts.reverse().forEach((post, index) => {
+        const postCard = createPostCard(post, index);
+        postsContainer.appendChild(postCard);
     });
 }
 
-/**
- * Create a note card element
- */
-function createNoteCard(note) {
+// Create a post card element
+function createPostCard(post, index) {
     const card = document.createElement('div');
-    card.className = 'note-card';
+    card.className = 'post-card';
 
-    const createdDate = new Date(note.created).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-
-    const editedInfo = note.edited 
-        ? `(Edited: ${new Date(note.edited).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-          })})`
-        : '';
+    const truncatedDescription = truncateText(post.content, 100);
+    const formattedDate = formatDate(post.date);
 
     card.innerHTML = `
-        <h3 class="note-title">${escapeHtml(note.title)}</h3>
-        <p class="note-content">${escapeHtml(note.content)}</p>
-        <small class="note-timestamp">Created: ${createdDate} ${editedInfo}</small>
-        <div class="note-actions">
-            <button class="btn-edit" onclick="openEditNoteModal('${note.id}')">Edit</button>
-            <button class="btn-delete" onclick="deleteNote('${note.id}')">Delete</button>
+        <img src="${post.image}" alt="${post.title}" class="post-card-image" onerror="this.src='https://via.placeholder.com/300x200?text=Image+Not+Found'">
+        <div class="post-card-content">
+            <h2 class="post-card-title">${escapeHtml(post.title)}</h2>
+            <p class="post-card-description">${escapeHtml(truncatedDescription)}</p>
+            <div class="post-card-footer">
+                <span class="post-card-date">${formattedDate}</span>
+                <button class="post-card-delete" onclick="deletePost(${index})">Delete</button>
+            </div>
         </div>
     `;
+
+    // Add click event to open full post
+    card.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('post-card-delete')) {
+            viewPost(index);
+        }
+    });
 
     return card;
 }
 
-// ============================================
-// Utility Functions
-// ============================================
+// View full blog post
+function viewPost(index) {
+    const posts = getPostsFromStorage();
+    const reversedIndex = posts.length - 1 - index;
+    const post = posts[reversedIndex];
 
-/**
- * Generate a unique ID for new notes
- */
-function generateId() {
-    return `note_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    if (!post) return;
+
+    const postDetailSection = document.getElementById('post-content-detail');
+    const formattedDate = formatDate(post.date);
+
+    postDetailSection.innerHTML = `
+        <img src="${post.image}" alt="${post.title}" class="post-detail-image" onerror="this.src='https://via.placeholder.com/800x400?text=Image+Not+Found'">
+        <div class="post-detail-header">
+            <h1 class="post-detail-title">${escapeHtml(post.title)}</h1>
+            <p class="post-detail-date">Published on ${formattedDate}</p>
+        </div>
+        <div class="post-detail-content">${escapeHtml(post.content)}</div>
+    `;
+
+    showSection('post-detail');
 }
 
-/**
- * Escape HTML special characters to prevent XSS
- */
+// Delete a post
+function deletePost(index) {
+    const posts = getPostsFromStorage();
+    const reversedIndex = posts.length - 1 - index;
+
+    if (confirm('Are you sure you want to delete this post?')) {
+        posts.splice(reversedIndex, 1);
+        savePostsToStorage(posts);
+        renderPosts();
+        showSection('home');
+    }
+}
+
+// ===========================
+// Form Handling
+// ===========================
+
+function handlePostSubmit(e) {
+    e.preventDefault();
+
+    const title = document.getElementById('post-title').value.trim();
+    const image = document.getElementById('post-image').value.trim();
+    const content = document.getElementById('post-content').value.trim();
+
+    if (!title || !image || !content) {
+        alert('Please fill in all required fields');
+        return;
+    }
+
+    // Create new post
+    const newPost = {
+        title: title,
+        image: image,
+        content: content,
+        date: new Date().toISOString()
+    };
+
+    // Get existing posts
+    const posts = getPostsFromStorage();
+    posts.push(newPost);
+
+    // Save to storage
+    savePostsToStorage(posts);
+
+    // Reset form
+    e.target.reset();
+    document.getElementById('image-preview').classList.remove('show');
+
+    // Show success message
+    alert('Post published successfully!');
+
+    // Render posts
+    renderPosts();
+
+    // Navigate to home
+    showSection('home');
+}
+
+function previewImage(e) {
+    const imageUrl = e.target.value;
+    const preview = document.getElementById('image-preview');
+
+    if (imageUrl) {
+        preview.style.backgroundImage = `url('${imageUrl}')`;
+        preview.classList.add('show');
+    } else {
+        preview.classList.remove('show');
+    }
+}
+
+// ===========================
+// Utility Functions
+// ===========================
+
+// Truncate text to specified length
+function truncateText(text, length) {
+    if (text.length <= length) return text;
+    return text.substring(0, length) + '...';
+}
+
+// Format date to readable format
+function formatDate(dateString) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', options);
+}
+
+// Escape HTML special characters to prevent XSS
 function escapeHtml(text) {
     const map = {
         '&': '&amp;',
@@ -250,6 +261,3 @@ function escapeHtml(text) {
     };
     return text.replace(/[&<>"']/g, m => map[m]);
 }
-
-// Initialize on page load
-renderNotes();
