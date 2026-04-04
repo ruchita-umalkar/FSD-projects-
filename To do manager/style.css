@@ -1,0 +1,363 @@
+/* Version 1: Modern Glassmorphism Design */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  z-index: 1;
+}
+
+/* Blur background elements */
+.blur {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  z-index: 0;
+}
+
+.blur-1 {
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.5);
+  top: -50px;
+  left: -50px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.blur-2 {
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.3);
+  bottom: -50px;
+  right: -50px;
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(20px); }
+}
+
+/* Glassmorphism Card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #fff;
+}
+
+.app-header h1 {
+  font-size: 36px;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.subtitle {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Add Task Container */
+.add-task-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.task-input {
+  flex: 1;
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  color: #333;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.task-input:focus {
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+  transform: scale(1.02);
+}
+
+.task-input::placeholder {
+  color: #aaa;
+}
+
+.btn-add {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.btn-add:hover {
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-add:active {
+  transform: scale(0.95);
+}
+
+/* Filter Buttons */
+.filter-buttons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.filter-btn.active {
+  background: rgba(255, 255, 255, 0.6);
+  color: #667eea;
+  border-color: #667eea;
+}
+
+/* Task List */
+.task-list {
+  list-style: none;
+  margin-bottom: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.task-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.task-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.task-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
+}
+
+.task-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.task-item:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateX(5px);
+}
+
+.task-item.completed {
+  opacity: 0.6;
+}
+
+.task-item.completed .task-text {
+  text-decoration: line-through;
+  color: #aaa;
+}
+
+.task-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #667eea;
+}
+
+.task-text {
+  flex: 1;
+  color: #fff;
+  font-size: 15px;
+  word-break: break-word;
+}
+
+.task-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-edit,
+.btn-delete {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-edit {
+  background: rgba(255, 193, 7, 0.6);
+  color: white;
+}
+
+.btn-edit:hover {
+  background: rgba(255, 193, 7, 1);
+  transform: scale(1.1);
+}
+
+.btn-delete {
+  background: rgba(244, 67, 54, 0.6);
+  color: white;
+}
+
+.btn-delete:hover {
+  background: rgba(244, 67, 54, 1);
+  transform: scale(1.1);
+}
+
+.empty-state {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 40px 20px;
+}
+
+/* Task Counter */
+.task-counter {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.task-counter span {
+  font-weight: bold;
+  color: #fff;
+}
+
+/* Clear Button */
+.btn-clear {
+  display: block;
+  margin: 20px auto 0;
+  padding: 10px 24px;
+  background: rgba(244, 67, 54, 0.8);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-clear:hover {
+  background: rgba(244, 67, 54, 1);
+  transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .glass-card {
+    padding: 20px;
+  }
+
+  .app-header h1 {
+    font-size: 28px;
+  }
+
+  .task-list {
+    max-height: 300px;
+  }
+
+  .task-item {
+    padding: 10px;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+}
