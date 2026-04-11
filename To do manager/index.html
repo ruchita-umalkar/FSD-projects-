@@ -1,0 +1,61 @@
+<!-- Version 1: Modern Glassmorphism Design -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do App - Glassmorphism</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Background Blur Elements -->
+    <div class="blur blur-1"></div>
+    <div class="blur blur-2"></div>
+
+    <!-- Main Content -->
+    <div class="glass-card">
+      <header class="app-header">
+        <h1>✨ My Tasks</h1>
+        <p class="subtitle">Stay organized and productive</p>
+      </header>
+
+      <!-- Add Task Section -->
+      <div class="add-task-container">
+        <input
+          type="text"
+          id="taskInput"
+          class="task-input"
+          placeholder="Add a new task..."
+          autocomplete="off"
+        />
+        <button id="addBtn" class="btn-add">
+          <span>+</span>
+        </button>
+      </div>
+
+      <!-- Filter Buttons -->
+      <div class="filter-buttons">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="active">Active</button>
+        <button class="filter-btn" data-filter="completed">Completed</button>
+      </div>
+
+      <!-- Task List -->
+      <ul id="taskList" class="task-list">
+        <li class="empty-state">No tasks yet. Add one to get started! 🚀</li>
+      </ul>
+
+      <!-- Task Counter -->
+      <div class="task-counter">
+        <span id="taskCount">0</span> tasks • <span id="completedCount">0</span> completed
+      </div>
+    </div>
+
+    <!-- Clear All Button -->
+    <button id="clearBtn" class="btn-clear">Clear Completed Tasks</button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
