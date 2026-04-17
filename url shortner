@@ -1,0 +1,32 @@
+const express = require("express");
+const mongoose = require("mongoose");
+const shortid = require("shortid");
+
+const app = express();
+app.use(express.json());
+
+mongoose.connect("mongodb://127.0.0.1:27017/urlshort");
+
+const Url = mongoose.model("Url", {
+  original: String,
+  short: String
+});
+
+// create short url
+app.post("/shorten", async (req, res) => {
+  const { url } = req.body;
+  const short = shortid.generate();
+
+  await Url.create({ original: url, short });
+
+  res.json({ shortUrl: `http://localhost:3000/${short}` });
+});
+
+// redirect
+app.get("/:code", async (req, res) => {
+  const data = await Url.findOne({ short: req.params.code });
+  if (data) return res.redirect(data.original);
+  res.send("Not found");
+});
+
+app.listen(3000, () => console.log("Server running"));
